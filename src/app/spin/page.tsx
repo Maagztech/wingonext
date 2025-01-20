@@ -19,7 +19,7 @@ import nineImg from "@/assets/9.png";
 import HistoryTable from "@/components/HistoryTable";
 import RulesModal from "@/components/RulesModal";
 import ScoreModal from "@/components/ScoreModal";
-const buzzerAudio = new Audio("./buzz.wav");
+
 
 const images = [
     zeroImg,
@@ -44,7 +44,7 @@ const GamePage: React.FC = () => {
     const [rulesModalVisible, setRulesModalVisible] = useState<boolean>(false);
     const [selectChoice, setSelectChoice] = useState<string>("");
     const [selectDigit, setSelectDigit] = useState<number>(10);
-    const [scoreModal, setScoreModal] = useState<boolean>(true);
+    const [scoreModal, setScoreModal] = useState<boolean>(false);
     const handleColorClick = (color: string) => {
         if (isSelecting) {
             setSelectChoice(color.toLowerCase());
@@ -71,6 +71,7 @@ const GamePage: React.FC = () => {
     const handleSubmitGame = () => {
         const randomDigit = Math.floor(Math.random() * 10);
         let finalResult = 0;
+        if (bet.length === 0) return;
         for (const eachBet of bet) {
             const { contractAmount, selectedChoice, selectedDigit } = eachBet;
             console.log(eachBet);
@@ -117,9 +118,7 @@ const GamePage: React.FC = () => {
                 }
             }
             finalResult += result;
-            console.log(result);
         }
-        console.log(finalResult);
         setBet([])
         setGameResult(finalResult);
         setScoreModal(true);
@@ -133,9 +132,12 @@ const GamePage: React.FC = () => {
         return () => clearInterval(interval);
     }, []);
     const [isVisible, setIsVisible] = useState(true);  // Track visibility state
-
+    const [buzzerAudio, setBuzzerAudio] = useState<HTMLAudioElement | null>(null);
     useEffect(() => {
-        // Function to handle visibility change
+        if (typeof window !== 'undefined') {
+            const buzzerAudio = new Audio("./buzz.wav");
+            setBuzzerAudio(buzzerAudio);
+        }
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
                 setIsVisible(true);
@@ -153,7 +155,7 @@ const GamePage: React.FC = () => {
         };
     }, []);
     useEffect(() => {
-        if (timeLeft > 0 && timeLeft <= 5 && isVisible) {
+        if (buzzerAudio && timeLeft > 0 && timeLeft <= 5 && isVisible) {
             buzzerAudio.pause();
             buzzerAudio.currentTime = 0;
             buzzerAudio.play();

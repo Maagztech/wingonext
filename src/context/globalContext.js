@@ -1,11 +1,5 @@
 "use client";
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  use,
-} from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
 const GlobalContext = createContext(undefined);
 
@@ -19,9 +13,6 @@ export const GlobalProvider = ({ children }) => {
   }, [isMobileQuery]);
 
   const [bet, setBet] = useState([]);
-  useEffect(() => {
-    console.log(bet);
-  }, [bet]);
 
   return (
     <GlobalContext.Provider value={{ isMobile, bet, setBet }}>
