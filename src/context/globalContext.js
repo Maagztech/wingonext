@@ -68,7 +68,6 @@ export const GlobalProvider = ({ children }) => {
             { refresh_token }
           );
           router.replace("/spin");
-          setUserInfo(response.data.user);
           setAccessToken(response.data.access_token);
           localStorage.setItem("refresh_token", response.data.refresh_token);
           setIsLoading(false);
