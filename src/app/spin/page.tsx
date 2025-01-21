@@ -36,7 +36,7 @@ const images = [
 ];
 
 const GamePage: React.FC = () => {
-    const { isMobile, bet = [], setBet, accesstoken }: any = useGlobalContext();
+    const { isMobile, bet = [], setBet, accesstoken, fetchBalance }: any = useGlobalContext();
     const [timeRange, setTimeRange] = useState<number>(30);
     const [timeLeft, setTimeLeft] = useState<number>(timeRange);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -83,6 +83,7 @@ const GamePage: React.FC = () => {
         if (bet.length === 0) return;
         const response = await axios.post("https://wingobackend-x4wo.onrender.com/api/play", { bet }, { headers: { Authorization: accesstoken } })
         setBet([])
+        fetchBalance();
         setGameResult(response.data.score);
         setHistory((prev) => [{ number: response.data.result, result: response.data.score }, ...prev]);
         setScoreModal(true);
