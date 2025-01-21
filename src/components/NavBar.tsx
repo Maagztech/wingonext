@@ -1,11 +1,18 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Wingo from "@/assets/wingo.png";
 import Image from 'next/image';
 import BalanceModal from './BalanceModal';
+import { useGlobalContext } from '@/context/globalContext';
+import axios from 'axios';
 
 const NavBar = () => {
+    const { accesstoken, fetchBalance, balance }: any = useGlobalContext();
     const [balanceModal, setBalanaceModal] = useState(false);
+    useEffect(() => {
+        if (accesstoken)
+            fetchBalance();
+    }, [accesstoken])
     return (
         <div className="flex items-center flex-row bg-gradient-to-r from-red-500 to-white gap-2 h-[60px] justify-between">
             <div className="flex items-center gap-2">
@@ -18,7 +25,7 @@ const NavBar = () => {
                 </h1>
             </div>
             <div onClick={() => setBalanaceModal(true)} className="cursor-pointer hover:scale-105 active:scale-95 transition-transform duration-150 ease-in-out mr-4 bg-violet-700 p-2 text-white rounded-bl-[15px] rounded-tr-[15px]">
-                <p className="font-bold">Balance : ₹ 100</p>
+                <p className="font-bold">Balance : ₹ {balance}</p>
             </div>
             <BalanceModal visible={balanceModal} setvisible={setBalanaceModal} />
         </div>

@@ -21,7 +21,7 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
     selectedChoice,
     selectedDigit,
 }) => {
-    const { isMobile, setBet }: any = useGlobalContext();
+    const { isMobile, setBet, balance }: any = useGlobalContext();
     const [amount, setAmount] = useState<number | null>(null);
     const [multiplier, setMultiplier] = useState<number>(1);
 
@@ -46,6 +46,10 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
         },
     };
     const addBet = () => {
+        if (!amount || balance < amount) {
+            alert("You don't have enough balance")
+            return;
+        }
         if (amount)
             setBet((prev: any[]) => [...prev, { selectedChoice, selectedDigit, contractAmount: amount * multiplier }])
         setVisible(false);

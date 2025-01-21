@@ -19,6 +19,7 @@ import nineImg from "@/assets/9.png";
 import HistoryTable from "@/components/HistoryTable";
 import RulesModal from "@/components/RulesModal";
 import ScoreModal from "@/components/ScoreModal";
+import axios from "axios";
 
 
 const images = [
@@ -35,7 +36,7 @@ const images = [
 ];
 
 const GamePage: React.FC = () => {
-    const { isMobile, bet = [], setBet }: any = useGlobalContext();
+    const { isMobile, bet = [], setBet, accesstoken }: any = useGlobalContext();
     const [timeRange, setTimeRange] = useState<number>(30);
     const [timeLeft, setTimeLeft] = useState<number>(timeRange);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -45,6 +46,7 @@ const GamePage: React.FC = () => {
     const [selectChoice, setSelectChoice] = useState<string>("");
     const [selectDigit, setSelectDigit] = useState<number>(10);
     const [scoreModal, setScoreModal] = useState<boolean>(false);
+    const [history, setHistory] = useState<{ number: number; result: number }[]>([]);
     const handleColorClick = (color: string) => {
         if (isSelecting) {
             setSelectChoice(color.toLowerCase());
@@ -67,60 +69,22 @@ const GamePage: React.FC = () => {
         }
     };
 
-
-    const handleSubmitGame = () => {
-        const randomDigit = Math.floor(Math.random() * 10);
-        let finalResult = 0;
-        if (bet.length === 0) return;
-        for (const eachBet of bet) {
-            const { contractAmount, selectedChoice, selectedDigit } = eachBet;
-            console.log(eachBet);
-            let result = 0;
-            if (selectedChoice === "green") {
-                if ([1, 3, 7, 9].includes(randomDigit)) {
-                    result = contractAmount * 2;
-                } else if (randomDigit === 5) {
-                    result = contractAmount * 1.5;
-                } else {
-                    result = -contractAmount;
-                }
-            } else if (selectedChoice === "red") {
-                if ([2, 4, 6, 8].includes(randomDigit)) {
-                    result = contractAmount * 2;
-                } else if (randomDigit === 0) {
-                    result = contractAmount * 1.5;
-                } else {
-                    result = -contractAmount;
-                }
-            } else if (selectedChoice === "violet") {
-                if ([0, 5].includes(randomDigit)) {
-                    result = contractAmount * 4.5;
-                } else {
-                    result = -contractAmount;
-                }
-            } else if (selectedChoice === "number") {
-                if (randomDigit === selectedDigit) {
-                    result = contractAmount * 9;
-                } else {
-                    result = -contractAmount;
-                }
-            } else if (selectedChoice === "big") {
-                if ([5, 6, 7, 8, 9].includes(randomDigit)) {
-                    result = contractAmount * 2;
-                } else {
-                    result = -contractAmount;
-                }
-            } else if (selectedChoice === "small") {
-                if ([0, 1, 2, 3, 4].includes(randomDigit)) {
-                    result = contractAmount * 2;
-                } else {
-                    result = -contractAmount;
-                }
-            }
-            finalResult += result;
+    useEffect(() => {
+        const fetchHistory = async () => {
+            const response = await axios.get("https://wingobackend-x4wo.onrender.com/api/fetchhistory", { headers: { Authorization: accesstoken } })
+            setHistory(response.data.history);
         }
+        if (accesstoken)
+            fetchHistory();
+    }, [accesstoken])
+
+
+    const handleSubmitGame = async () => {
+        if (bet.length === 0) return;
+        const response = await axios.post("https://wingobackend-x4wo.onrender.com/api/play", { bet }, { headers: { Authorization: accesstoken } })
         setBet([])
-        setGameResult(finalResult);
+        setGameResult(response.data.score);
+        setHistory((prev) => [{ number: response.data.result, result: response.data.score }, ...prev]);
         setScoreModal(true);
     }
 
@@ -278,7 +242,7 @@ const GamePage: React.FC = () => {
                             </button>
                         </div>
                     </div>
-                    <HistoryTable />
+                    <HistoryTable history={history} />
                 </div>
             </div>
             <ChoseBetModal visible={isModalVisible} setVisible={setIsModalVisible} selectedChoice={selectChoice} selectedDigit={selectDigit} />

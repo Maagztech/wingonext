@@ -3,15 +3,43 @@ import LongLine from "@/assets/longLine.svg";
 import Line from "@/assets/modalLine.svg";
 import Okay from "@/assets/Okay.svg";
 import { useGlobalContext } from "@/context/globalContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "react-modal";
 import Scanner from "@/assets/scanner.jpg"
-
+import axios from "axios";
+import { ToastContainer, toast } from 'react-toastify';
 const BalanceModal = ({ visible, setvisible }: any) => {
-    const { isMobile } = useGlobalContext();
+    const { isMobile, accesstoken, fetchBalance, balance }: any = useGlobalContext();
+    useEffect(() => {
+        if (accesstoken)
+            fetchBalance();
+    }, [accesstoken])
+    const uploadImage = async (file: File): Promise<string | null> => {
+
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", "dzdedmky");
+            formData.append("cloud_name", "aababcab");
+            const response = await axios.post(
+                "https://api.cloudinary.com/v1_1/aababcab/image/upload",
+                formData,
+                {
+                    headers: { "Content-Type": "multipart/form-data" },
+                }
+            );
+            return response.data.secure_url;
+        } catch (error) {
+            console.error("Error uploading image:", error);
+            return null;
+        }
+    };
+
     const [withdraw, setWithdraw] = useState(false)
     const [withdrawAmount, setWithdrawAmount] = useState<null | number>(null);
-    const balance = 100;
+    const [upi, setUpi] = useState<string>("");
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [transactionID, setTransactionID] = useState<string>("");
     const customStylesModal: Modal.Styles = {
         content: {
             top: isMobile ? "171px" : "0%",
@@ -30,8 +58,45 @@ const BalanceModal = ({ visible, setvisible }: any) => {
             zIndex: 1040,
         },
     };
+    const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!selectedFile) {
+            alert("Please select a file to upload");
+            return;
+        }
 
-    const handleWithdraw = async () => {
+        try {
+            const uploadedImageUrl = await uploadImage(selectedFile);
+            if (!uploadedImageUrl) {
+                toast("Failed to upload image. Please try again.");
+                return;
+            }
+            await axios.post(
+                "https://wingobackend-x4wo.onrender.com/api/add",
+                {
+                    image: uploadedImageUrl,
+                    transactionID
+                },
+                { headers: { Authorization: accesstoken } }
+            );
+            toast("Our Team will review and add to your balance soon!");
+            // setvisible(false);
+
+        } catch (error) {
+            console.error("Error uploading file or sending data:", error);
+            toast("Failed to submit the request. Please try again.");
+        }
+    };
+
+
+    const handleWithdraw = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        await axios.post("https://wingobackend-x4wo.onrender.com/api/withdraw", { upi, amount: withdrawAmount }, { headers: { Authorization: accesstoken } });
+        fetchBalance();
+        toast("You will receive money in 15 minutes.");
+        // setvisible(false);
+        setUpi("");
+        setWithdrawAmount(null);
 
     }
 
@@ -45,6 +110,7 @@ const BalanceModal = ({ visible, setvisible }: any) => {
             overlayClassName="Overlay"
             contentLabel="Modal"
         >
+            <ToastContainer />
             <div className="flex flex-col h-full relative">
                 <div className="px-4 w-full overflow-y-scroll flex-grow mb-[20px]">
                     <div className="flex justify-center">
@@ -70,7 +136,7 @@ const BalanceModal = ({ visible, setvisible }: any) => {
                     </div>
                     <div>
                         <div>
-                            <p className="text-[#1D1D1D] text-[20px] font-bold">Balance : 100</p>
+                            <p className="text-[#1D1D1D] text-[20px] font-bold">Balance : {balance}</p>
                         </div>
                         <div className="flex justify-center gap-4 mt-4">
                             <p className={`cursor-pointer hover:scale-105 active:scale-95 transition-transform duration-150 ease-in-out p-2 border border-gray-200 rounded-lg ${withdraw ? "bg-gray-200" : "bg-red-500  text-white"}`} onClick={() => setWithdraw(false)}>ADD Balance</p>
@@ -81,16 +147,27 @@ const BalanceModal = ({ visible, setvisible }: any) => {
                                 <div>
                                     <p className="mt-3 italic font-bold text-center text-gray-700">Scan Pay and Upload Screenshot</p>
                                     <img src={Scanner.src} alt="Scanner" className="w-full mt-4 rounded-lg shadow-md" />
-                                    <form className="mt-5">
-                                        <label htmlFor="screenshotUpload" className="block text-sm font-medium text-gray-700">
+                                    <form className="mt-5" onSubmit={handleAdd}>
+                                        <label htmlFor="withdrawAmount" className="mt-2 block text-sm font-medium text-gray-700">
+                                            Enter Transaction ID
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="transaction"
+                                            name="transaction"
+                                            onChange={(e) => setTransactionID(e.target.value)}
+                                            className=" p-2 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            placeholder="Enter transaction ID"
+                                            required
+                                        />
+                                        <label htmlFor="screenshotUpload" className="mt-2 block text-sm font-medium text-gray-700">
                                             Upload Screenshot
                                         </label>
                                         <input
                                             type="file"
-                                            id="screenshotUpload"
-                                            name="screenshot"
                                             accept="image/*"
-                                            className="mt-2 p-2 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                                            className="p-2 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         />
                                         <button
                                             type="submit"
@@ -111,11 +188,11 @@ const BalanceModal = ({ visible, setvisible }: any) => {
                                             if (withdrawAmount > balance) {
                                                 alert("Withdraw amount cannot exceed your balance!");
                                             } else {
-                                                handleWithdraw();
+                                                handleWithdraw(e);
                                             }
                                         }}
                                     >
-                                        <label htmlFor="withdrawAmount" className="block text-sm font-medium text-gray-700">
+                                        <label htmlFor="withdrawAmount" className="mt-2 block text-sm font-medium text-gray-700">
                                             Enter Withdraw Amount
                                         </label>
                                         <input
@@ -123,10 +200,21 @@ const BalanceModal = ({ visible, setvisible }: any) => {
                                             id="withdrawAmount"
                                             value={withdrawAmount || ""}
                                             onChange={(e) => setWithdrawAmount(Number(e.target.value))}
-                                            className="mt-2 p-2 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            className="p-2 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
                                             placeholder="Enter amount"
                                             min="1"
                                             max={balance}
+                                            required
+                                        />
+                                        <label htmlFor="withdrawAmount" className="mt-2 block text-sm font-medium text-gray-700">
+                                            Enter UPI ID
+                                        </label>
+                                        <input
+                                            id="upi"
+                                            value={upi || ""}
+                                            onChange={(e) => setUpi(e.target.value)}
+                                            className="p-2 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            placeholder="Enter Upi"
                                             required
                                         />
                                         <button
@@ -139,14 +227,7 @@ const BalanceModal = ({ visible, setvisible }: any) => {
                                 </div>
                             )}
                         </div>
-
-
                     </div>
-
-
-
-
-
                 </div>
                 <div
                     className={`${!isMobile ? "bottomShadow" : ""

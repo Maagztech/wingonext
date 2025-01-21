@@ -5,13 +5,10 @@ import OnboardMobile from "@/assets/signinpage.png";
 import OnboardMobileBg from "@/assets/onboardMobileBg.svg";
 import { useGlobalContext } from "@/context/globalContext";
 import { GoogleLogin } from "@react-oauth/google";
-import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const { isMobile, loading } =
+  const { isMobile, loading, signInUser }: any =
     useGlobalContext();
-  console.log(isMobile, loading);
-  const router = useRouter();
   if (isMobile === null || loading) return <></>;
   return (
     <main className="h-[100vh] w-full overflow-hidden">
@@ -40,8 +37,7 @@ export default function Home() {
                 <GoogleLogin
                   width="400px"
                   onSuccess={(credentialResponse) => {
-                    console.log(credentialResponse);
-                    router.push("/spin");
+                    signInUser(credentialResponse.credential);
                   }}
                   onError={() => {
                     console.log("Login Failed");
@@ -81,13 +77,7 @@ export default function Home() {
               <GoogleLogin
                 width="300px"
                 onSuccess={(credentialResponse) => {
-                  console.log(credentialResponse);
-                  // getEmail(credentialResponse);
-                  // localStorage.setItem(
-                  //   "token",
-                  //   credentialResponse.credential?.toString() || ""
-                  // );
-                  router.push("/spin");
+                  signInUser(credentialResponse.credential);
                 }}
                 onError={() => {
                   console.log("Login Failed");
