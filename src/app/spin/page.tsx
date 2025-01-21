@@ -36,7 +36,7 @@ const images = [
 ];
 
 const GamePage: React.FC = () => {
-    const { isMobile, bet = [], setBet, accesstoken, fetchBalance }: any = useGlobalContext();
+    const { bet = [], setBet, accesstoken, fetchBalance }: any = useGlobalContext();
     const [timeRange, setTimeRange] = useState<number>(30);
     const [timeLeft, setTimeLeft] = useState<number>(timeRange);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -72,7 +72,7 @@ const GamePage: React.FC = () => {
     useEffect(() => {
         const fetchHistory = async () => {
             const response = await axios.get("https://wingobackend-x4wo.onrender.com/api/fetchhistory", { headers: { Authorization: accesstoken } })
-            setHistory(response.data.history);
+            setHistory(response.data.history.reverse());
         }
         if (accesstoken)
             fetchHistory();
@@ -140,7 +140,7 @@ const GamePage: React.FC = () => {
         <div className="w-full h-full">
             <NavBar />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full p-[20px] h-[70vh]">
-                <div className="flex flex-col items-center sm:pl-[150px] sm:pt-[100px] bg-red-100 border border-gray-300 p-4 rounded-lg">
+                <div className="flex flex-col items-center sm:pt-[100px] bg-red-100 border border-gray-300 p-4 rounded-lg">
                     <button className="bg-red-500 p-2 rounded-bl-[8px] rounded-tr-[8px] text-white mb-4" onClick={() => setRulesModalVisible(true)}>How to play ?</button>
                     <div className="mb-4">
                         <div className="flex space-x-4">
