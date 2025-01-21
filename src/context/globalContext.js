@@ -31,7 +31,6 @@ export const GlobalProvider = ({ children }) => {
   }, [isMobileQuery]);
 
   const signInUser = async (token) => {
-    console.log(token);
     setIsLoading(true);
     try {
       const response = await axios.post(
@@ -41,7 +40,6 @@ export const GlobalProvider = ({ children }) => {
           headers: { Authorization: `${token}` },
         }
       );
-      console.log(response);
       const user = response.data;
       setAccessToken(user.access_token);
       router.replace("/spin");
@@ -61,7 +59,9 @@ export const GlobalProvider = ({ children }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
+        setIsLoading(true);
         const refresh_token = await getLocalUser();
+
         if (refresh_token) {
           const response = await axios.post(
             "https://wingobackend-x4wo.onrender.com/api/refresh_token",
@@ -87,6 +87,7 @@ export const GlobalProvider = ({ children }) => {
   return (
     <GlobalContext.Provider
       value={{
+        isLoading,
         isMobile,
         bet,
         setBet,

@@ -5,13 +5,15 @@ import OnboardMobile from "@/assets/signinpage.png";
 import OnboardMobileBg from "@/assets/onboardMobileBg.svg";
 import { useGlobalContext } from "@/context/globalContext";
 import { GoogleLogin } from "@react-oauth/google";
+import GlobalLoader from "@/components/GlobalLoader";
 
 export default function Home() {
-  const { isMobile, loading, signInUser }: any =
+  const { isMobile, isLoading, signInUser }: any =
     useGlobalContext();
-  if (isMobile === null || loading) return <></>;
+  if (isMobile === null) return <></>;
   return (
     <main className="h-[100vh] w-full overflow-hidden">
+      {isLoading ? <GlobalLoader /> : <></>}
       {isMobile ? (
         <div className="w-full h-full flex flex-col fixed">
           <div className="flex-grow">
@@ -100,6 +102,7 @@ export default function Home() {
           </div>
         </div>
       )}
+
     </main>
   );
 }
