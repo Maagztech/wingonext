@@ -30,7 +30,7 @@ const NavBar = () => {
                     style={{ fontFamily: "Overpass, sans-serif" }}
                     className="font-bold text-[24px] leading-[38.4px] z-20 text-white sm:text-[30px]"
                 >
-                    Win Go
+                    Dhaman
                 </h1>
             </div>
             <div className="flex items-center gap-4 mr-4">
