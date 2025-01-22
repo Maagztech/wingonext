@@ -144,7 +144,7 @@ export default function Home() {
       )} */}
       <p className="mt-[60px]">If you often play the colour prediction game, you might need a legit and fair gaming app to play the colour prediction game. That’s why the most obvious choice to play the colour prediction game would be the Daman Game app. </p>
 
-      <p className="mt-[60px]">Customer Support – <Link href="https://t.me/VIPTeacherAryahh" className="text-blue-500">https://t.me/VIPTeacherAryahh</Link></p>
+      <p className="mt-[60px]">Customer Support – <Link href="https://t.me/+LalkJoWu4FhmYThl" className="text-blue-500">https://t.me/+LalkJoWu4FhmYThl</Link></p>
 
       <p className="mt-[60px]">The Daman Game is the best colour prediction app where you can play the colour prediction game in 1 minute, 3 minutes, 5 minutes and 10 minutes. The Daman Game app also gives a win streak and rebate bonus for their colour prediction game.</p>
       <div className="bg-gray-200 p-4 py-[60px] mt-[70px]">
