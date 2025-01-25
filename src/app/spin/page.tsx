@@ -100,7 +100,7 @@ const GamePage: React.FC = () => {
     const [buzzerAudio, setBuzzerAudio] = useState<HTMLAudioElement | null>(null);
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            const buzzerAudio = new Audio("./buzz.wav");
+            const buzzerAudio = new Audio("./beep.mp3");
             setBuzzerAudio(buzzerAudio);
         }
         const handleVisibilityChange = () => {
@@ -121,7 +121,7 @@ const GamePage: React.FC = () => {
     }, []);
     useEffect(() => {
         if (buzzerAudio && timeLeft > 0 && timeLeft <= 5 && isVisible) {
-            buzzerAudio.pause();
+            // buzzerAudio.pause();
             buzzerAudio.currentTime = 0;
             buzzerAudio.play();
         }

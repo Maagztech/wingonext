@@ -61,7 +61,6 @@ export const GlobalProvider = ({ children }) => {
       try {
         setIsLoading(true);
         const refresh_token = await getLocalUser();
-
         if (refresh_token) {
           const response = await axios.post(
             "https://wingobackend-x4wo.onrender.com/api/refresh_token",
@@ -70,15 +69,14 @@ export const GlobalProvider = ({ children }) => {
           router.replace("/spin");
           setAccessToken(response.data.access_token);
           localStorage.setItem("refresh_token", response.data.refresh_token);
-          setIsLoading(false);
         } else {
           router.replace("/");
-          setIsLoading(false);
         }
       } catch (error) {
+        localStorage.removeItem("refresh_token");
         router.replace("/");
-        setIsLoading(false);
       }
+      setIsLoading(false);
     };
     if (typeof window !== "undefined") fetchUser();
   }, []);
