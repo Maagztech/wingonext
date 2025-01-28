@@ -1,8 +1,4 @@
 "use client";
-import EnterButton from "@/assets/enterButton.svg";
-import EnterButtonComp from "@/assets/enterButtonComp.svg";
-import OnboardMobile from "@/assets/signinpage.png";
-import OnboardMobileBg from "@/assets/onboardMobileBg.svg";
 import { useGlobalContext } from "@/context/globalContext";
 import { GoogleLogin } from "@react-oauth/google";
 import GlobalLoader from "@/components/GlobalLoader";
@@ -14,7 +10,7 @@ export default function Home() {
     useGlobalContext();
   if (isMobile === null) return <></>;
   return (
-    <main className="w-full overflow-hidden px-[20px] sm:px-[30px] md:px-[100px]" style={{ fontFamily: "Overpass, sans-serif" }}>
+    <main className="w-full text-sm overflow-hidden px-[20px] sm:px-[30px] md:px-[100px]">
       {isLoading ? <GlobalLoader /> : <></>}
       <div className="flex items-center justify-center gap-4 mt-3">
         <div className="relative h-[42px] w-[311px] mt-[28px] mb-[35px] flex justify-center">

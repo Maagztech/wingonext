@@ -14,12 +14,9 @@ export const GlobalProvider = ({ children }) => {
   const [balance, setBalance] = useState(0);
 
   const fetchBalance = async () => {
-    const response = await axios.get(
-      "https://wingobackend-x4wo.onrender.com/api/fetchbalance",
-      {
-        headers: { Authorization: accesstoken },
-      }
-    );
+    const response = await axios.get("http://localhost:5000/api/fetchbalance", {
+      headers: { Authorization: accesstoken },
+    });
     setBalance(response.data.balance);
   };
 
@@ -34,7 +31,7 @@ export const GlobalProvider = ({ children }) => {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        "https://wingobackend-x4wo.onrender.com/api/login",
+        "http://localhost:5000/api/login",
         {},
         {
           headers: { Authorization: `${token}` },
@@ -63,7 +60,7 @@ export const GlobalProvider = ({ children }) => {
         const refresh_token = await getLocalUser();
         if (refresh_token) {
           const response = await axios.post(
-            "https://wingobackend-x4wo.onrender.com/api/refresh_token",
+            "http://localhost:5000/api/refresh_token",
             { refresh_token }
           );
           router.replace("/spin");

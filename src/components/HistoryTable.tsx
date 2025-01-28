@@ -29,14 +29,15 @@ const HistoryTable = ({ history }: any) => {
 
     return (
         <div className="w-full">
-            <h2 className="text-xl font-bold mb-4 text-center border p-2 bg-gradient-to-r from-red-500 to-white rounded-lg text-white">Win History</h2>
-            <table className="w-full border border-gray-300 rounded-lg">
+            <h2 className="text-xl font-bold mb-4 text-center border px-[2px] py-2 bg-gradient-to-r from-red-500 to-white rounded-lg text-white">Win History</h2>
+            <table className="w-full border border-gray-300 text-xs md:text-base rounded-lg">
                 <thead>
                     <tr className="bg-red-500 text-white">
-                        <th className="p-2 border border-gray-300">Number</th>
-                        <th className="p-2 border border-gray-300">Big/Small</th>
-                        <th className="p-2 border border-gray-300">Color(s)</th>
-                        <th className="p-2 border border-gray-300">Result</th>
+                        <th className="px-[2px] py-2 border border-gray-300">Period</th>
+                        <th className="px-[2px] py-2 border border-gray-300 ">Number</th>
+                        <th className="px-[2px] py-2 border border-gray-300 ">Big/Small</th>
+                        <th className="px-[2px] py-2 border border-gray-300 ">Color(s)</th>
+                        <th className="px-[2px] py-2 border border-gray-300 ">Result</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,9 +47,10 @@ const HistoryTable = ({ history }: any) => {
 
                         return (
                             <tr key={index} className="text-center">
-                                <td className="p-2 border border-gray-300">{result.number}</td>
-                                <td className="p-2 border border-gray-300">{option?.bigSmall || "Unknown"}</td>
-                                <td className="p-2 border border-gray-300">
+                                <td className="px-[2px] py-2 border border-gray-300 ">2025/01/20-0000</td>
+                                <td className="px-[2px] py-2 border border-gray-300 ">{result.number}</td>
+                                <td className="px-[2px] py-2 border border-gray-300 ">{option?.bigSmall || "Unknown"}</td>
+                                <td className="px-[2px] py-2 border border-gray-300 ">
                                     {option?.colors.map((color, colorIndex) => (
                                         <span
                                             key={colorIndex}
@@ -59,7 +61,7 @@ const HistoryTable = ({ history }: any) => {
                                     )) || "Unknown"}
                                 </td>
                                 <td
-                                    className={`p-2 border border-gray-300 font-bold ${result.result < 0 ? "text-red-500" : "text-green-500"
+                                    className={`px-[2px] py-2 border border-gray-300  font-bold ${result.result < 0 ? "text-red-500" : "text-green-500"
                                         }`}
                                 >
                                     {result.result}

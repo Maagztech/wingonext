@@ -1,10 +1,9 @@
 import Back from "@/assets/Back.svg";
 import LongLine from "@/assets/longLine.svg";
 import Line from "@/assets/modalLine.svg";
-import Okay from "@/assets/Okay.svg";
+import Modal from "react-modal";
 import { useGlobalContext } from "@/context/globalContext";
 import { useState } from "react";
-import Modal from "react-modal";
 
 interface ModalComponentProps {
     visible: boolean;
@@ -12,8 +11,6 @@ interface ModalComponentProps {
     selectedChoice: string;
     selectedDigit: number;
 }
-
-
 
 const ModalComponent: React.FC<ModalComponentProps> = ({
     visible,
@@ -27,6 +24,7 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
 
     const amountOptions = [1, 10, 100, 1000];
     const multiplierOptions = [1, 2, 5, 100];
+
     const customStylesModal: Modal.Styles = {
         content: {
             top: isMobile ? "171px" : "0%",
@@ -35,25 +33,33 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
             bottom: "0%",
             height: isMobile ? "auto" : "100%",
             width: isMobile ? "100%" : "400px",
-            backgroundColor: "white",
+            backgroundColor: "#252A3E",
             zIndex: 1050,
-            fontFamily: "Oxanium",
+            fontFamily: "Oxanium, sans-serif",
             display: "flex",
             flexDirection: "column",
+            color: "white",
+            borderRadius: "20px",
+            boxShadow: "0 8px 30px rgba(0, 0, 0, 0.3)",
         },
         overlay: {
             zIndex: 1040,
+            backgroundColor: "rgba(0, 0, 0, 0.75)",
         },
     };
+
     const addBet = () => {
         if (!amount || balance < amount) {
-            alert("You don't have enough balance")
+            alert("You don't have enough balance");
             return;
         }
-        if (amount)
-            setBet((prev: any[]) => [...prev, { selectedChoice, selectedDigit, contractAmount: amount * multiplier }])
+        setBet((prev: any[]) => [
+            ...prev,
+            { selectedChoice, selectedDigit, contractAmount: amount * multiplier },
+        ]);
         setVisible(false);
-    }
+    };
+
     return (
         <Modal
             ariaHideApp={false}
@@ -64,14 +70,13 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
             overlayClassName="Overlay"
             contentLabel="Modal"
         >
-
             <div className="flex flex-col h-full relative">
-                <div className="px-4 w-full overflow-y-scroll flex-grow mb-[20px]">
+                <div className="px-4 w-full overflow-y-scroll flex-grow mb-5">
                     <div className="flex justify-center">
                         {isMobile && <img src={Line.src} alt="Line" />}
                     </div>
                     <div
-                        className={`flex gap-[8px] justify-start mb-[28px] items-center ${isMobile ? "text-center mt-5" : "mt-[40px]"
+                        className={`flex gap-4 justify-start items-center mb-7 ${isMobile ? "text-center mt-5" : "mt-10"
                             }`}
                     >
                         <button
@@ -81,25 +86,28 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
                             {!isMobile && <img src={Back.src} alt="Back" />}
                         </button>
                         <p
-                            className={`font-semibold text-2xl leading-6 ${isMobile ? "text-center flex-1" : ""
+                            className={`font-semibold text-2xl ${isMobile ? "text-center flex-1" : ""
                                 }`}
-                            style={{ letterSpacing: "-0.04em" }}
                         >
                             Choose Your Bet
                         </p>
                     </div>
-                    <div className="p-4 border rounded-lg w-full max-w-md mx-auto">
-                        <p className="font-semibold mb-2">Selected Choice: {selectedChoice}</p>
-                        {selectedChoice === "Digit" && (
-                            <p className="font-semibold mb-2">Selected Digit: {selectedDigit}</p>)}
-                        <div className="mt-2">
-                            <p className="font-semibold mb-2">Select Amount:</p>
-                            <div className="grid grid-cols-4 gap-2">
+
+                    <div className="p-4 border border-gray-700 bg-gradient-to-b from-[#1E2A3A] to-[#3E497A] rounded-lg w-full max-w-md mx-auto">
+                        <p className="font-bold text-lg mb-2">Selected Choice: {selectedChoice}</p>
+                        {selectedChoice === "digit" && (
+                            <p className="font-bold text-lg mb-2">Selected Digit: {selectedDigit}</p>
+                        )}
+                        <div className="mt-4">
+                            <p className="font-semibold mb-3">Select Amount:</p>
+                            <div className="grid grid-cols-4 gap-3">
                                 {amountOptions.map((value) => (
                                     <button
                                         key={value}
                                         onClick={() => setAmount(value)}
-                                        className={`p-3 border rounded-lg text-center cursor-pointer ${amount === value ? "bg-blue-500 text-white" : "bg-gray-100"
+                                        className={`p-3 rounded-lg text-center transition-all duration-300 ${amount === value
+                                            ? "bg-gradient-to-r from-green-400 to-blue-500 text-white shadow-lg"
+                                            : "bg-gray-800 text-gray-300 hover:bg-gray-700"
                                             }`}
                                     >
                                         ₹ {value}
@@ -107,14 +115,17 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
                                 ))}
                             </div>
                         </div>
-                        <div className="mb-6">
-                            <p className="font-semibold mb-2">Select Multiplier:</p>
-                            <div className="grid grid-cols-4 gap-2">
+
+                        <div className="mt-6">
+                            <p className="font-semibold mb-3">Select Multiplier:</p>
+                            <div className="grid grid-cols-4 gap-3">
                                 {multiplierOptions.map((value) => (
                                     <button
                                         key={value}
                                         onClick={() => setMultiplier(value)}
-                                        className={`p-3 border rounded-lg text-center cursor-pointer ${multiplier === value ? "bg-blue-500 text-white" : "bg-gray-100"
+                                        className={`p-3 rounded-lg text-center transition-all duration-300 ${multiplier === value
+                                            ? "bg-gradient-to-r from-purple-400 to-pink-500 text-white shadow-lg"
+                                            : "bg-gray-800 text-gray-300 hover:bg-gray-700"
                                             }`}
                                     >
                                         {value}X
@@ -123,18 +134,23 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
                             </div>
                         </div>
                     </div>
-
                 </div>
-                <div
-                    className={`${!isMobile ? "bottomShadow" : ""
-                        } sticky bottom-0 w-full bg-[#ffffff] flex flex-col items-center`}
-                >
-                    <img
-                        src={Okay.src}
-                        alt="Okay"
-                        className="mt-3 cursor-pointer hover:scale-105 active:scale-95 transition-transform duration-150 ease-in-out"
-                        onClick={() => addBet()}
-                    />
+
+                <div className="sticky bottom-0 w-full bg-[#1E2A3A] py-4 flex flex-col items-center border-t border-gray-700">
+                    <div className="flex justify-around items-center w-full px-4">
+                        <button
+                            className="w-1/3 cursor-pointer hover:scale-105 active:scale-95 transition-transform duration-150 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg"
+                            onClick={() => setVisible(false)}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className="w-1/3 cursor-pointer hover:scale-105 active:scale-95 transition-transform duration-150 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg"
+                            onClick={() => addBet()}
+                        >
+                            Add Bet
+                        </button>
+                    </div>
                     <img src={LongLine.src} alt="Line" className="mt-7 mb-3" />
                 </div>
             </div>

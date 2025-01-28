@@ -6,7 +6,7 @@ import Image from "next/image";
 import BalanceModal from "./BalanceModal";
 import { useGlobalContext } from "@/context/globalContext";
 import { useRouter } from "next/navigation";
-
+import Money from "@/assets/RectangleRupey.svg";
 const NavBar = () => {
     const { accesstoken, fetchBalance, balance }: any = useGlobalContext();
     const [balanceModal, setBalanaceModal] = useState(false);
@@ -23,22 +23,22 @@ const NavBar = () => {
     };
 
     return (
-        <div className="flex items-center flex-row bg-gradient-to-r from-red-500 to-white h-[60px] justify-between">
-            <div className="flex items-center gap-2">
-                <Image src={Wingo} alt="Wingo" width={70} height={70} />
+        <div className="flex w-full items-center flex-row bg-gradient-to-r from-red-500 to-white h-[60px] justify-between">
+            <div className="flex items-center gap-0 ">
+                <Image src={Wingo} alt="Wingo" width={50} height={50} />
                 <h1
-                    style={{ fontFamily: "Overpass, sans-serif" }}
-                    className="font-bold text-[24px] leading-[38.4px] z-20 text-white sm:text-[30px]"
+                    className="font-bold text-[24px] leading-[38.4px] z-20 text-white sm:text-[30px] ml-[-8px]"
                 >
                     Dhaman
                 </h1>
             </div>
-            <div className="flex items-center gap-4 mr-4">
+            <div className="flex items-center gap-1 mr-4">
                 <div
                     onClick={() => setBalanaceModal(true)}
-                    className="cursor-pointer hover:scale-105 active:scale-95 transition-transform duration-150 ease-in-out bg-violet-700 p-1 sm:p-2 text-white rounded-bl-[15px] rounded-tr-[15px]"
+                    className=" flex items-center gap-1 cursor-pointer hover:scale-105 active:scale-95 transition-transform duration-150 ease-in-out bg-violet-700 p-1 md:p-2 text-white rounded-bl-[8px] rounded-tr-[8px]"
                 >
-                    <p className="font-bold">Balance: ₹{balance}</p>
+                    <Image src={Money.src} alt="Wingo" width={20} height={20} />
+                    <p className="font-bold text-[12px]">Balance: ₹{balance}</p>
                 </div>
                 <div className="relative">
                     <Image

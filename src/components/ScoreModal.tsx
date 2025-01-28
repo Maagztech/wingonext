@@ -2,9 +2,34 @@ import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 import Success from "@/assets/Success.svg";
 import Collect from "@/assets/collect.svg";
-import Noreward from "@/assets/noreward.svg";
+import Noreward from "@/assets/loss.jpg";
 
 const ScoreModal = ({ visible, setvisible, winValue }: any) => {
+  const options = [
+    { number: 0, bigSmall: "Small", colors: ["Red", "Violet"] },
+    { number: 1, bigSmall: "Small", colors: ["Green"] },
+    { number: 2, bigSmall: "Small", colors: ["Red"] },
+    { number: 3, bigSmall: "Small", colors: ["Green"] },
+    { number: 4, bigSmall: "Small", colors: ["Red"] },
+    { number: 5, bigSmall: "Big", colors: ["Violet", "Green"] },
+    { number: 6, bigSmall: "Big", colors: ["Red"] },
+    { number: 7, bigSmall: "Big", colors: ["Green"] },
+    { number: 8, bigSmall: "Big", colors: ["Red"] },
+    { number: 9, bigSmall: "Big", colors: ["Green"] },
+  ];
+
+  const getColorClass = (color: string) => {
+    switch (color) {
+      case "Red":
+        return "text-red-500";
+      case "Green":
+        return "text-green-500";
+      case "Violet":
+        return "text-purple-500";
+      default:
+        return "";
+    }
+  };
   const [imagesLoaded, setImagesLoaded] = useState({
     success: false,
     noreward: false
@@ -36,8 +61,8 @@ const ScoreModal = ({ visible, setvisible, winValue }: any) => {
       left: "50%",
       right: "auto",
       bottom: "auto",
-      height: "374px",
-      width: "327px",
+      height: "310px",
+      width: "300px",
       marginRight: "-50%",
       transform: "translate(-50%, 0%)",
       backgroundColor: "white",
@@ -52,27 +77,25 @@ const ScoreModal = ({ visible, setvisible, winValue }: any) => {
       isOpen={visible}
       onRequestClose={() => setvisible(false)}
       style={customStylesModal}
-      className={`Modal overflow-hidden flex flex-col items-center px-[17px] pb-[36px] rounded-[15px] ${!imagesLoaded.success || !imagesLoaded.noreward ? "hidden" : "successBg"
+      className={`Modal overflow-hidden text-black flex flex-col items-center px-[17px] pb-[36px] rounded-[15px] ${!imagesLoaded.success || !imagesLoaded.noreward ? "hidden" : "successBg"
         }`}
       overlayClassName="Overlay"
       contentLabel="Modal"
     >
-      {winValue > 0 ? (
+      <h1 className="text-center font-bold my-2 text-lg">Result</h1>
+      <div className="flex items-center justify-around w-full">
+        <p className="text-lg">small</p>
+        <p className="text-lg">1</p>
+        <p className="text-lg">Red Green</p>
+      </div>
+      {winValue >= 0 ? (
         <>
           {imagesLoaded.success && (
-            <img src={Success.src} alt="Success" />
+            <img src={Success.src} alt="Success" className="mt-[-46px] h-[240px]" />
           )}
-          <p className="font-bold text-[20px] leading-[25px] mt-[-12px] mb-[19px]">
-            You Won {winValue} Coins!
+          <p className="font-bold text-[20px] leading-[25px] mt-[-16px]">
+            You Won {winValue} Rupees!
           </p>
-          <button
-            onClick={async () => {
-              setvisible(false);
-            }}
-            className="hover:scale-105 active:scale-95 transition-transform duration-150 ease-in-out"
-          >
-            <img src={Collect.src} alt="Collect" />
-          </button>
         </>
       ) : (
         imagesLoaded.noreward && (
@@ -80,17 +103,18 @@ const ScoreModal = ({ visible, setvisible, winValue }: any) => {
             <img
               src={Noreward.src}
               alt="No Reward"
-              className="mb-[67px] mt-[83px]"
+              className="mt-2"
             />
-            <p className="font-bold text-[16px] leading-[20px]">
-              You Lose!
-            </p>
-            <p className="font-bold text-[20px] leading-[25px] mt-[12px] mx-[30]">
+            <p className="font-bold text-[20px] leading-[25px] mx-[30] my-2">
               Better luck next time!
             </p>
           </>
         )
       )}
+      <div className="flex items-center justify-around w-full">
+        <p className="text-lg">Type:</p>
+        <p className="text-lg">Period:</p>
+      </div>
     </Modal>
   );
 };
