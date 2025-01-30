@@ -20,7 +20,7 @@ import HistoryTable from "@/components/HistoryTable";
 import RulesModal from "@/components/RulesModal";
 import ScoreModal from "@/components/ScoreModal";
 import axios from "axios";
-
+import useWebSocket from "../../hooks/useWebSocket";
 
 const images = [
     zeroImg,
@@ -36,6 +36,7 @@ const images = [
 ];
 
 const GamePage: React.FC = () => {
+    const { gameData } = useWebSocket();
     const { bet = [], setBet, accesstoken, fetchBalance }: any = useGlobalContext();
     const [timeRange, setTimeRange] = useState<number>(30);
     const [timeLeft, setTimeLeft] = useState<number>(timeRange);

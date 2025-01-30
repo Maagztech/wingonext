@@ -12,7 +12,7 @@ export const GlobalProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [accesstoken, setAccessToken] = useState(null);
   const [balance, setBalance] = useState(0);
-
+  const [user, setUser] = useState(null);
   const fetchBalance = async () => {
     const response = await axios.get("http://localhost:5000/api/fetchbalance", {
       headers: { Authorization: accesstoken },
@@ -38,6 +38,7 @@ export const GlobalProvider = ({ children }) => {
         }
       );
       const user = response.data;
+      setUser(user.user);
       setAccessToken(user.access_token);
       router.replace("/spin");
       localStorage.setItem("refresh_token", user.refresh_token);
@@ -63,6 +64,7 @@ export const GlobalProvider = ({ children }) => {
             "http://localhost:5000/api/refresh_token",
             { refresh_token }
           );
+          setUser(response.data.user);
           router.replace("/spin");
           setAccessToken(response.data.access_token);
           localStorage.setItem("refresh_token", response.data.refresh_token);
@@ -89,6 +91,7 @@ export const GlobalProvider = ({ children }) => {
         accesstoken,
         balance,
         fetchBalance,
+        user,
       }}
     >
       {children}
