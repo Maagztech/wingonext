@@ -47,7 +47,7 @@ const HistoryTable = ({ history }: any) => {
 
                         return (
                             <tr key={index} className="text-center">
-                                <td className="px-[2px] py-2 border border-gray-300 ">2025/01/20-0000</td>
+                                <td className="px-[2px] py-2 border border-gray-300 ">0000</td>
                                 <td className="px-[2px] py-2 border border-gray-300 ">{result.number}</td>
                                 <td className="px-[2px] py-2 border border-gray-300 ">{option?.bigSmall || "Unknown"}</td>
                                 <td className="px-[2px] py-2 border border-gray-300 ">

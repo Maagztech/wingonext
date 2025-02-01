@@ -1,8 +1,15 @@
 "use client";
 import { useRouter } from "next/navigation";
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  use,
+} from "react";
 import { useMediaQuery } from "react-responsive";
 import axios from "axios";
+import moment from "moment";
 const GlobalContext = createContext(undefined);
 
 export const GlobalProvider = ({ children }) => {
@@ -13,6 +20,8 @@ export const GlobalProvider = ({ children }) => {
   const [accesstoken, setAccessToken] = useState(null);
   const [balance, setBalance] = useState(0);
   const [user, setUser] = useState(null);
+  const [interval, setIntervals] = useState(30);
+  const [timeleft, setTimeleft] = useState(30);
   const fetchBalance = async () => {
     const response = await axios.get("http://localhost:5000/api/fetchbalance", {
       headers: { Authorization: accesstoken },
@@ -80,6 +89,21 @@ export const GlobalProvider = ({ children }) => {
     if (typeof window !== "undefined") fetchUser();
   }, []);
 
+  useEffect(() => {
+    const now = moment();
+    const secondsElapsed = now.seconds();
+    const secondsUntilNextStart = interval - (secondsElapsed % interval);
+    setTimeleft(secondsUntilNextStart);
+  }, [interval]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeleft((prev) => (prev === 0 ? interval : prev - 1));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeleft, interval]);
+
   return (
     <GlobalContext.Provider
       value={{
@@ -90,8 +114,13 @@ export const GlobalProvider = ({ children }) => {
         signInUser,
         accesstoken,
         balance,
+        setBalance,
         fetchBalance,
         user,
+        interval,
+        setIntervals,
+        timeleft,
+        setTimeleft,
       }}
     >
       {children}

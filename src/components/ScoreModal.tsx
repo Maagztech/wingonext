@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 import Success from "@/assets/Success.svg";
-import Collect from "@/assets/collect.svg";
 import Noreward from "@/assets/loss.jpg";
+import useWebSocket from "@/hooks/useWebSocket";
 
-const ScoreModal = ({ visible, setvisible, winValue }: any) => {
+const ScoreModal = ({ visible, setvisible, }: any) => {
+  const { gameData } = useWebSocket();
+  useEffect(() => {
+    console.log("score modal", gameData);
+  }, [gameData]);
+
   const options = [
     { number: 0, bigSmall: "Small", colors: ["Red", "Violet"] },
     { number: 1, bigSmall: "Small", colors: ["Green"] },
@@ -70,7 +75,8 @@ const ScoreModal = ({ visible, setvisible, winValue }: any) => {
     },
     overlay: { zIndex: 1000 },
   };
-
+  if (!gameData) return null;
+  const option = options.find(opt => opt.number === gameData.randomDigit);
   return (
     <Modal
       ariaHideApp={false}
@@ -84,17 +90,24 @@ const ScoreModal = ({ visible, setvisible, winValue }: any) => {
     >
       <h1 className="text-center font-bold my-2 text-lg">Result</h1>
       <div className="flex items-center justify-around w-full">
-        <p className="text-lg">small</p>
-        <p className="text-lg">1</p>
-        <p className="text-lg">Red Green</p>
+        <p className="text-lg">{option?.bigSmall || "Unknown"}</p>
+        <p className="text-lg">{gameData.randomDigit}</p>
+        <p className="text-lg">{option?.colors.map((color, colorIndex) => (
+          <span
+            key={colorIndex}
+            className={`font-bold ${getColorClass(color)} ${colorIndex > 0 ? "ml-2" : ""}`}
+          >
+            {color}
+          </span>
+        )) || "Unknown"}</p>
       </div>
-      {winValue >= 0 ? (
+      {gameData?.totalUserResult >= 0 ? (
         <>
           {imagesLoaded.success && (
             <img src={Success.src} alt="Success" className="mt-[-46px] h-[240px]" />
           )}
           <p className="font-bold text-[20px] leading-[25px] mt-[-16px]">
-            You Won {winValue} Rupees!
+            You Won {gameData?.totalUserResult} Rupees!
           </p>
         </>
       ) : (
@@ -112,8 +125,8 @@ const ScoreModal = ({ visible, setvisible, winValue }: any) => {
         )
       )}
       <div className="flex items-center justify-around w-full">
-        <p className="text-lg">Type:</p>
-        <p className="text-lg">Period:</p>
+        <p className="text-lg">Type:{gameData?.interval}</p>
+        <p className="text-lg">Period:{gameData.period}</p>
       </div>
     </Modal>
   );

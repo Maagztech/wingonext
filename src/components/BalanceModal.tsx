@@ -7,7 +7,7 @@ import { useGlobalContext } from "@/context/globalContext";
 import { useEffect, useState } from "react";
 import Modal from "react-modal";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import Money from "@/assets/circularCoin.png"
 const BalanceModal = ({ visible, setvisible }: any) => {
     const { isMobile, accesstoken, fetchBalance, balance }: any = useGlobalContext();
@@ -110,7 +110,7 @@ const BalanceModal = ({ visible, setvisible }: any) => {
             overlayClassName="Overlay"
             contentLabel="Balance Modal"
         >
-            <ToastContainer />
+
             <div className="flex flex-col h-full relative">
                 <div className="px-4 w-full overflow-y-scroll flex-grow mb-5">
                     <div className="flex justify-center">

@@ -35,19 +35,20 @@ const images = [
     nineImg,
 ];
 
+
+
 const GamePage: React.FC = () => {
     const { gameData } = useWebSocket();
-    const { bet = [], setBet, accesstoken, fetchBalance }: any = useGlobalContext();
-    const [timeRange, setTimeRange] = useState<number>(30);
-    const [timeLeft, setTimeLeft] = useState<number>(timeRange);
+    const { accesstoken, timeleft, setIntervals, interval }: any = useGlobalContext();
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-    const [gameResult, setGameResult] = useState<number>(0);
     const [isSelecting, setIsSelecting] = useState<boolean>(true);
     const [rulesModalVisible, setRulesModalVisible] = useState<boolean>(false);
     const [selectChoice, setSelectChoice] = useState<string>("");
     const [selectDigit, setSelectDigit] = useState<number>(10);
     const [scoreModal, setScoreModal] = useState<boolean>(true);
     const [history, setHistory] = useState<{ number: number; result: number }[]>([]);
+    const [isVisible, setIsVisible] = useState(true);
+    const [buzzerAudio, setBuzzerAudio] = useState<HTMLAudioElement | null>(null);
     const handleColorClick = (color: string) => {
         if (isSelecting) {
             setSelectChoice(color.toLowerCase());
@@ -79,26 +80,13 @@ const GamePage: React.FC = () => {
             fetchHistory();
     }, [accesstoken])
 
-
-    const handleSubmitGame = async () => {
-        if (bet.length === 0) return;
-        const response = await axios.post("http://localhost:5000/api/play", { bet }, { headers: { Authorization: accesstoken } })
-        setBet([])
-        fetchBalance();
-        setGameResult(response.data.score);
-        setHistory((prev) => [{ number: response.data.result, result: response.data.score }, ...prev]);
-        setScoreModal(true);
-    }
-
     useEffect(() => {
-        const interval = setInterval(() => {
-            setTimeLeft((prev) => prev - 1);
-        }, 1000);
+        setScoreModal(true);
+        if (gameData) {
+            setHistory((prev) => [{ number: gameData.randomDigit, result: gameData.totalUserResult }, ...prev]);
+        }
+    }, [gameData])
 
-        return () => clearInterval(interval);
-    }, []);
-    const [isVisible, setIsVisible] = useState(true);  // Track visibility state
-    const [buzzerAudio, setBuzzerAudio] = useState<HTMLAudioElement | null>(null);
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const buzzerAudio = new Audio("./beep.mp3");
@@ -112,29 +100,19 @@ const GamePage: React.FC = () => {
             }
         };
 
-        // Add event listener to detect visibility changes
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
-        // Clean up event listener on component unmount
         return () => {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
     }, []);
     useEffect(() => {
-        if (buzzerAudio && timeLeft > 0 && timeLeft <= 5 && isVisible) {
+        if (buzzerAudio && timeleft > 0 && timeleft <= 5 && isVisible) {
             buzzerAudio.currentTime = 0;
             buzzerAudio.play();
+            setIsModalVisible(false);
         }
-
-        if (timeLeft === 1) {
-            handleSubmitGame();
-        }
-
-        if (timeLeft <= 0) {
-            setIsSelecting(true);
-            setTimeLeft(timeRange);
-        }
-    }, [timeLeft, timeRange]);
+    }, [timeleft]);
 
     return (
         <div className="w-full h-full">
@@ -148,15 +126,14 @@ const GamePage: React.FC = () => {
                                 <div
                                     key={time}
                                     onClick={() => {
-                                        if (isSelecting) setTimeRange(time);
-                                        setTimeLeft(time);
+                                        if (isSelecting) setIntervals(time);
                                     }}
-                                    className={`px-4 py-2  text-[10px] relative border border-white font-bold text-center cursor-pointer ${time === timeRange ? "bg-red-500 text-white" : "bg-gray-200"
+                                    className={`px-4 py-2  text-[10px] relative border border-white font-bold text-center cursor-pointer ${time === interval ? "bg-red-500 text-white" : "bg-gray-200"
                                         } rounded-md`}
                                 >
                                     {time === 600 && <div className="absolute text-[10px] bg-white text-black p-[1px] font-bold rounded top-1 left-1">5D</div>}
                                     <Image
-                                        src={time === timeRange ? TimeActive : TimeInactive}
+                                        src={time === interval ? TimeActive : TimeInactive}
                                         alt="Time"
                                         width={70}
                                         height={70}
@@ -176,7 +153,7 @@ const GamePage: React.FC = () => {
                     </div>
                     <div className="flex justify-center space-x-2 mb-4">
                         <div className="w-8 h-8 flex justify-center items-center bg-red-500 text-white text-lg font-bold rounded">
-                            {Math.floor(timeLeft / 60)}
+                            {Math.floor(timeleft / 60)}
                         </div>
 
                         <div className="w-5 h-8 flex justify-center items-center bg-red-500 text-white text-lg font-bold rounded">
@@ -184,18 +161,18 @@ const GamePage: React.FC = () => {
                         </div>
 
                         <div className="w-8 h-8 flex justify-center items-center bg-red-500 text-white text-lg font-bold rounded">
-                            {String(Math.floor(timeLeft % 60)).padStart(2, "0")}
+                            {String(Math.floor(timeleft % 60)).padStart(2, "0")}
                         </div>
                     </div>
                 </div>
 
                 <div >
                     <div className="relative">
-                        {timeLeft <= 5 &&
+                        {timeleft <= 5 &&
                             <div className="absolute w-full h-full flex justify-center items-center bg-slate-600 bg-opacity-30 rounded-lg z-10 overflow-hidden">
                                 <div className="flex justify-center space-x-4 mb-4">
                                     <div className="w-32 h-32 flex justify-center items-center bg-red-500 text-white text-7xl font-bold rounded">
-                                        {Math.floor(timeLeft / 60)}
+                                        {Math.floor(timeleft / 60)}
                                     </div>
 
                                     <div className="w-12 h-32 flex justify-center items-center bg-red-500 text-white text-7xl font-bold rounded">
@@ -203,7 +180,7 @@ const GamePage: React.FC = () => {
                                     </div>
 
                                     <div className="w-32 h-32 flex justify-center items-center bg-red-500 text-white text-7xl font-bold rounded">
-                                        {String(Math.floor(timeLeft % 60)).padStart(2, "0")}
+                                        {String(Math.floor(timeleft % 60)).padStart(2, "0")}
                                     </div>
                                 </div>
                             </div>}
@@ -270,7 +247,7 @@ const GamePage: React.FC = () => {
             </div>
             <ChoseBetModal visible={isModalVisible} setVisible={setIsModalVisible} selectedChoice={selectChoice} selectedDigit={selectDigit} />
             <RulesModal visible={rulesModalVisible} setvisible={setRulesModalVisible} />
-            <ScoreModal visible={scoreModal} setvisible={setScoreModal} winValue={gameResult} />
+            <ScoreModal visible={scoreModal} setvisible={setScoreModal} />
         </div>
     );
 };

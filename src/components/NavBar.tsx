@@ -38,7 +38,7 @@ const NavBar = () => {
                     className=" flex items-center gap-1 cursor-pointer hover:scale-105 active:scale-95 transition-transform duration-150 ease-in-out bg-violet-700 p-1 md:p-2 text-white rounded-bl-[8px] rounded-tr-[8px]"
                 >
                     <Image src={Money.src} alt="Wingo" width={20} height={20} />
-                    <p className="font-bold text-[12px]">Balance: ₹{balance}</p>
+                    <p className="font-bold text-[12px]">₹{balance}</p>
                 </div>
                 <div className="relative">
                     <Image

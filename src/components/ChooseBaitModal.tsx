@@ -4,6 +4,8 @@ import Line from "@/assets/modalLine.svg";
 import Modal from "react-modal";
 import { useGlobalContext } from "@/context/globalContext";
 import { useState } from "react";
+import { toast } from "react-toastify";
+import useWebSocket from "@/hooks/useWebSocket";
 
 interface ModalComponentProps {
     visible: boolean;
@@ -18,10 +20,11 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
     selectedChoice,
     selectedDigit,
 }) => {
-    const { isMobile, setBet, balance }: any = useGlobalContext();
+    const { isMobile, interval, balance, user }: any = useGlobalContext();
+    if (!user) return null;
     const [amount, setAmount] = useState<number | null>(null);
     const [multiplier, setMultiplier] = useState<number>(1);
-
+    const { placeBet } = useWebSocket();
     const amountOptions = [1, 10, 100, 1000];
     const multiplierOptions = [1, 2, 5, 100];
 
@@ -50,13 +53,10 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
 
     const addBet = () => {
         if (!amount || balance < amount) {
-            alert("You don't have enough balance");
+            toast("You don't have enough balance");
             return;
         }
-        setBet((prev: any[]) => [
-            ...prev,
-            { selectedChoice, selectedDigit, contractAmount: amount * multiplier },
-        ]);
+        placeBet(selectedChoice, selectedDigit, amount, multiplier, interval);
         setVisible(false);
     };
 
