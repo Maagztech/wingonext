@@ -3,7 +3,7 @@ import { useGlobalContext } from "@/context/globalContext";
 import { GoogleLogin } from "@react-oauth/google";
 import GlobalLoader from "@/components/GlobalLoader";
 import Link from "next/link";
-import poster from "@/assets/damangameposter.webp"
+import poster from "@/assets/dhamanlogo.jpg"
 
 export default function Home() {
   const { isMobile, isLoading, signInUser }: any =

@@ -1,15 +1,10 @@
 "use client";
 import { useRouter } from "next/navigation";
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  use,
-} from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
 import axios from "axios";
 import moment from "moment";
+
 const GlobalContext = createContext(undefined);
 
 export const GlobalProvider = ({ children }) => {
@@ -22,6 +17,10 @@ export const GlobalProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [interval, setIntervals] = useState(30);
   const [timeleft, setTimeleft] = useState(30);
+  const [gameData, setGameData] = useState(null);
+  const [socket, setSocket] = useState(null);
+  const router = useRouter();
+
   const fetchBalance = async () => {
     const response = await axios.get("http://localhost:5000/api/fetchbalance", {
       headers: { Authorization: accesstoken },
@@ -29,7 +28,6 @@ export const GlobalProvider = ({ children }) => {
     setBalance(response.data.balance);
   };
 
-  const router = useRouter();
   useEffect(() => {
     if (typeof window !== "undefined") {
       setIsMobile(isMobileQuery);
@@ -59,8 +57,7 @@ export const GlobalProvider = ({ children }) => {
 
   const getLocalUser = async () => {
     const data = localStorage.getItem("refresh_token");
-    if (!data) return null;
-    return data;
+    return data || null;
   };
 
   useEffect(() => {
@@ -100,9 +97,51 @@ export const GlobalProvider = ({ children }) => {
     const timer = setInterval(() => {
       setTimeleft((prev) => (prev === 0 ? interval : prev - 1));
     }, 1000);
-
     return () => clearInterval(timer);
   }, [timeleft, interval]);
+
+  useEffect(() => {
+    if (!user) return;
+    const wsUrl = `ws://localhost:5000?user=${user._id}`;
+    const ws = new WebSocket(wsUrl);
+    ws.onopen = () => console.log("WebSocket connected!");
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.balance) setBalance(data.balance);
+      if (data.type === "result" && data.interval === interval) {
+        setGameData((prev) =>
+          JSON.stringify(prev) !== JSON.stringify(data) ? data : prev
+        );
+      }
+    };
+    ws.onclose = () => console.log("WebSocket disconnected!");
+    setSocket(ws);
+    return () => ws.close();
+  }, [user]);
+
+  const placeBet = (
+    selectedChoice,
+    selectedDigit,
+    amount,
+    multiplier,
+    interval
+  ) => {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(
+        JSON.stringify({
+          type: "placeBet",
+          bet: {
+            selectedChoice,
+            selectedDigit,
+            contractAmount: amount * multiplier,
+          },
+          interval,
+        })
+      );
+    } else {
+      console.log("WebSocket is not connected.");
+    }
+  };
 
   return (
     <GlobalContext.Provider
@@ -121,6 +160,8 @@ export const GlobalProvider = ({ children }) => {
         setIntervals,
         timeleft,
         setTimeleft,
+        gameData,
+        placeBet,
       }}
     >
       {children}

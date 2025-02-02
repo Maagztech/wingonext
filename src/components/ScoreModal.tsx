@@ -2,14 +2,17 @@ import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 import Success from "@/assets/Success.svg";
 import Noreward from "@/assets/loss.jpg";
-import useWebSocket from "@/hooks/useWebSocket";
+import { useGlobalContext } from "@/context/globalContext";
 
-const ScoreModal = ({ visible, setvisible, }: any) => {
-  const { gameData } = useWebSocket();
-  useEffect(() => {
-    console.log("score modal", gameData);
-  }, [gameData]);
+interface GameData {
+  randomDigit: number;
+  totalUserResult: number;
+  interval: number;
+  period: number;
+}
 
+const ScoreModal = ({ visible, setvisible }: any) => {
+  const { gameData }: { gameData: GameData } = useGlobalContext();
   const options = [
     { number: 0, bigSmall: "Small", colors: ["Red", "Violet"] },
     { number: 1, bigSmall: "Small", colors: ["Green"] },
@@ -75,8 +78,7 @@ const ScoreModal = ({ visible, setvisible, }: any) => {
     },
     overlay: { zIndex: 1000 },
   };
-  if (!gameData) return null;
-  const option = options.find(opt => opt.number === gameData.randomDigit);
+  const option = gameData ? options.find(opt => opt.number === gameData.randomDigit) : null;
   return (
     <Modal
       ariaHideApp={false}
@@ -91,7 +93,7 @@ const ScoreModal = ({ visible, setvisible, }: any) => {
       <h1 className="text-center font-bold my-2 text-lg">Result</h1>
       <div className="flex items-center justify-around w-full">
         <p className="text-lg">{option?.bigSmall || "Unknown"}</p>
-        <p className="text-lg">{gameData.randomDigit}</p>
+        <p className="text-lg">{gameData?.randomDigit ?? "Unknown"}</p>
         <p className="text-lg">{option?.colors.map((color, colorIndex) => (
           <span
             key={colorIndex}
@@ -101,7 +103,7 @@ const ScoreModal = ({ visible, setvisible, }: any) => {
           </span>
         )) || "Unknown"}</p>
       </div>
-      {gameData?.totalUserResult >= 0 ? (
+      {gameData?.totalUserResult ?? -1 >= 0 ? (
         <>
           {imagesLoaded.success && (
             <img src={Success.src} alt="Success" className="mt-[-46px] h-[240px]" />
@@ -124,9 +126,13 @@ const ScoreModal = ({ visible, setvisible, }: any) => {
           </>
         )
       )}
-      <div className="flex items-center justify-around w-full">
-        <p className="text-lg">Type:{gameData?.interval}</p>
-        <p className="text-lg">Period:{gameData.period}</p>
+      <div className="flex items-center justify-around w-full font-bold">
+        <p className="text-sm">
+          Type: {gameData?.interval >= 60
+            ? `${Math.floor(gameData?.interval / 60)} min`
+            : `${gameData?.interval} sec`}
+        </p>
+        <p className="text-sm">Period:{gameData?.period}</p>
       </div>
     </Modal>
   );

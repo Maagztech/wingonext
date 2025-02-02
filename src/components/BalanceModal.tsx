@@ -127,7 +127,7 @@ const BalanceModal = ({ visible, setvisible }: any) => {
                     </div>
                     <div className="mt-4">
                         <div className="p-2 border border-white rounded-full flex items-center justify-center gap-2 ">
-                            <img src={Money.src} height={20} width={20} alt="Money" />
+                            <img src={Money.src} height={18} width={18} alt="Money" />
                             <p className="text-xl font-bold text-white text-center ">Balance: {balance}</p>
                         </div>
                         <div className="flex justify-center gap-4 mt-4">
@@ -167,13 +167,18 @@ const BalanceModal = ({ visible, setvisible }: any) => {
                                         <label className="block text-sm font-medium text-wghite mb-1">
                                             Upload Screenshot
                                         </label>
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                                            className="p-2 w-full border rounded-lg text-opacity-60"
-                                            required
-                                        />
+                                        <div className="relative w-full">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                required
+                                            />
+                                            <div className="flex items-center justify-center w-full p-3 border-2 border-dashed border-gray-400 rounded-lg bg-white hover:bg-gray-700 transition-all duration-300">
+                                                <span className="text-gray-800 text-sm">{selectedFile?.name || "📂 Click to upload an image"}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                     <button
                                         type="submit"

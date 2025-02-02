@@ -5,7 +5,6 @@ import Modal from "react-modal";
 import { useGlobalContext } from "@/context/globalContext";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import useWebSocket from "@/hooks/useWebSocket";
 
 interface ModalComponentProps {
     visible: boolean;
@@ -24,7 +23,7 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
     if (!user) return null;
     const [amount, setAmount] = useState<number | null>(null);
     const [multiplier, setMultiplier] = useState<number>(1);
-    const { placeBet } = useWebSocket();
+    const { placeBet }: any = useGlobalContext();
     const amountOptions = [1, 10, 100, 1000];
     const multiplierOptions = [1, 2, 5, 100];
 

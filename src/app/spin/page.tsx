@@ -19,8 +19,6 @@ import nineImg from "@/assets/9.png";
 import HistoryTable from "@/components/HistoryTable";
 import RulesModal from "@/components/RulesModal";
 import ScoreModal from "@/components/ScoreModal";
-import axios from "axios";
-import useWebSocket from "../../hooks/useWebSocket";
 
 const images = [
     zeroImg,
@@ -38,15 +36,14 @@ const images = [
 
 
 const GamePage: React.FC = () => {
-    const { gameData } = useWebSocket();
+    const { gameData }: { gameData: { totalUserResult: number } } = useGlobalContext();
     const { accesstoken, timeleft, setIntervals, interval }: any = useGlobalContext();
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [isSelecting, setIsSelecting] = useState<boolean>(true);
     const [rulesModalVisible, setRulesModalVisible] = useState<boolean>(false);
     const [selectChoice, setSelectChoice] = useState<string>("");
     const [selectDigit, setSelectDigit] = useState<number>(10);
-    const [scoreModal, setScoreModal] = useState<boolean>(true);
-    const [history, setHistory] = useState<{ number: number; result: number }[]>([]);
+    const [scoreModal, setScoreModal] = useState<boolean>(false);
     const [isVisible, setIsVisible] = useState(true);
     const [buzzerAudio, setBuzzerAudio] = useState<HTMLAudioElement | null>(null);
     const handleColorClick = (color: string) => {
@@ -72,25 +69,9 @@ const GamePage: React.FC = () => {
     };
 
     useEffect(() => {
-        const fetchHistory = async () => {
-            const response = await axios.get("http://localhost:5000/api/fetchhistory", { headers: { Authorization: accesstoken } })
-            setHistory(response.data.history.reverse());
-        }
-        if (accesstoken)
-            fetchHistory();
-    }, [accesstoken])
-
-    useEffect(() => {
-        setScoreModal(true);
-        if (gameData) {
-            setHistory((prev) => [{ number: gameData.randomDigit, result: gameData.totalUserResult }, ...prev]);
-        }
-    }, [gameData])
-
-    useEffect(() => {
         if (typeof window !== 'undefined') {
             const buzzerAudio = new Audio("./beep.mp3");
-            // setBuzzerAudio(buzzerAudio);
+            setBuzzerAudio(buzzerAudio);
         }
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
@@ -110,14 +91,15 @@ const GamePage: React.FC = () => {
         if (buzzerAudio && timeleft > 0 && timeleft <= 5 && isVisible) {
             buzzerAudio.currentTime = 0;
             buzzerAudio.play();
-            setIsModalVisible(false);
         }
+        if (timeleft <= 5) setIsModalVisible(false);
+        if (timeleft === 0 && gameData?.totalUserResult && gameData?.totalUserResult != 0) setScoreModal(true);
     }, [timeleft]);
 
     return (
         <div className="w-full h-full">
             <NavBar />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full p-[20px] h-[70vh]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full p-[20px] h-[70vh] pt-[80px]">
                 <div className="flex flex-col items-center sm:pt-[100px] bg-red-100 border border-gray-300 p-4 rounded-lg">
                     <button className="bg-red-500 p-2 rounded-bl-[8px] rounded-tr-[8px] text-white mb-4 text-[10px] font-bold" onClick={() => setRulesModalVisible(true)}>How to play ?</button>
                     <div className="mb-4">
@@ -242,7 +224,7 @@ const GamePage: React.FC = () => {
                             </div>
                         </div>
                     </div>
-                    <HistoryTable history={history} />
+                    <HistoryTable />
                 </div>
             </div>
             <ChoseBetModal visible={isModalVisible} setVisible={setIsModalVisible} selectedChoice={selectChoice} selectedDigit={selectDigit} />
