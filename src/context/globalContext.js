@@ -105,7 +105,7 @@ export const GlobalProvider = ({ children }) => {
 
   useEffect(() => {
     if (!user) return;
-    const wsUrl = `ws://lwingobackend-x4wo.onrender.com?user=${user._id}`;
+    const wsUrl = `ws://wingobackend-x4wo.onrender.com?user=${user._id}`;
     const ws = new WebSocket(wsUrl);
     ws.onopen = () => console.log("WebSocket connected!");
     ws.onmessage = (event) => {
