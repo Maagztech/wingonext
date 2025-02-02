@@ -111,6 +111,7 @@ export const GlobalProvider = ({ children }) => {
     ws.onopen = () => console.log("WebSocket connected!");
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
+      console.log(data);
       if (data.balance) setBalance(data.balance);
       if (data.type === "betPlaced") toast.success("Bet Placed Successfully");
       if (data.type === "result" && data.interval === interval) {

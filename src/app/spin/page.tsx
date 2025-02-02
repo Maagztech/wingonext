@@ -93,7 +93,7 @@ const GamePage: React.FC = () => {
             buzzerAudio.play();
         }
         if (timeleft <= 5) setIsModalVisible(false);
-        if (timeleft === 0 && gameData?.totalUserResult && gameData?.totalUserResult != 0) setScoreModal(true);
+        if (timeleft === 0 && gameData?.totalUserResult !== 0) setScoreModal(true);
     }, [timeleft]);
 
     return (
