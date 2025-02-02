@@ -40,7 +40,7 @@ const HistoryTable = () => {
         setLoading(true);
         try {
             const response = await axios.get(
-                `http://localhost:5000/api/fetchhistory?interval=${interval}&page=${pageNum}`,
+                `https://wingobackend-x4wo.onrender.com/api/fetchhistory?interval=${interval}&page=${pageNum}`,
                 { headers: { Authorization: accesstoken } }
             );
             if (pageNum === 1) setHistory(response.data.history);
