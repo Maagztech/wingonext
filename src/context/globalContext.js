@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
 import axios from "axios";
 import moment from "moment";
+import { toast } from "react-toastify";
 
 const GlobalContext = createContext(undefined);
 
@@ -111,6 +112,7 @@ export const GlobalProvider = ({ children }) => {
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.balance) setBalance(data.balance);
+      if (data.type === "betPlaced") toast.success("Bet Placed Successfully");
       if (data.type === "result" && data.interval === interval) {
         setGameData((prev) =>
           JSON.stringify(prev) !== JSON.stringify(data) ? data : prev

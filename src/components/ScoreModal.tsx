@@ -103,7 +103,7 @@ const ScoreModal = ({ visible, setvisible }: any) => {
           </span>
         )) || "Unknown"}</p>
       </div>
-      {gameData?.totalUserResult ?? -1 >= 0 ? (
+      {gameData?.totalUserResult >= 0 ? (
         <>
           {imagesLoaded.success && (
             <img src={Success.src} alt="Success" className="mt-[-46px] h-[240px]" />
