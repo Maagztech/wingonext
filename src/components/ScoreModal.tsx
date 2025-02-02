@@ -126,7 +126,7 @@ const ScoreModal = ({ visible, setvisible }: any) => {
           </>
         )
       )}
-      <div className="flex items-center justify-around w-full font-bold">
+      <div className="flex items-center justify-around w-full font-bold mt-2">
         <p className="text-sm">
           Type: {gameData?.interval >= 60
             ? `${Math.floor(gameData?.interval / 60)} min`
