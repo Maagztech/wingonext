@@ -10,7 +10,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Money from "@/assets/circularCoin.png"
 const BalanceModal = ({ visible, setvisible }: any) => {
-    const { isMobile, accesstoken, fetchBalance, balance }: any = useGlobalContext();
+    const { isMobile, accesstoken, fetchBalance, balance, setIsLoading }: any = useGlobalContext();
 
     const [withdraw, setWithdraw] = useState(false);
     const [withdrawAmount, setWithdrawAmount] = useState<number | null>(null);
@@ -42,6 +42,7 @@ const BalanceModal = ({ visible, setvisible }: any) => {
 
     const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setIsLoading(true);
         if (!selectedFile) {
             toast("Please select a file to upload.");
             return;
@@ -63,6 +64,7 @@ const BalanceModal = ({ visible, setvisible }: any) => {
             console.error("Error uploading file or sending data:", error);
             toast("Failed to submit the request. Please try again.");
         }
+        setIsLoading(false);
     };
 
     const handleWithdraw = async (e: React.FormEvent<HTMLFormElement>) => {
