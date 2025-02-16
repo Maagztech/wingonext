@@ -58,7 +58,7 @@ const RulesModal = ({ visible, setvisible }: any) => {
               {!isMobile && <img src={Back.src} alt="Back" />}
             </button>
             <p
-              className={`font-semibold text-2xl ${isMobile ? "text-center flex-1" : ""
+              className={`text-white font-semibold text-2xl ${isMobile ? "text-center flex-1" : ""
                 }`}
             >
               Rules & Regulation

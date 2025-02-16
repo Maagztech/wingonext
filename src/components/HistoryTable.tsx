@@ -5,13 +5,7 @@ import React, { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 const HistoryTable = () => {
-    const { gameData, interval, accesstoken }: any = useGlobalContext();
-    useEffect(() => {
-        console.log("gameData", gameData);
-    }, [gameData]);
-    useEffect(() => {
-        console.log("interval", interval);
-    }, [interval]);
+    const { gameData, interval, accesstoken, timeleft }: any = useGlobalContext();
     const [history, setHistory] = useState<{ period: number; number: number; result: number }[]>([]);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
@@ -46,7 +40,7 @@ const HistoryTable = () => {
         if (!accesstoken) return;
         try {
             const response = await axios.get(
-                `http://localhost:5000/api/fetchhistory?interval=${interval}&page=${pageNum}`,
+                `https://wingobackend-x4wo.onrender.com/api/fetchhistory?interval=${interval}&page=${pageNum}`,
                 { headers: { Authorization: accesstoken } }
             );
             if (response.data.history.length === 0) {
@@ -66,15 +60,14 @@ const HistoryTable = () => {
     }, [interval, accesstoken]);
 
     useEffect(() => {
-        if (gameData) {
+        if (gameData && timeleft == 0) {
             if (gameData.interval === interval)
-
                 setHistory((prev) => [
                     { number: gameData.randomDigit, result: gameData.totalUserResult, period: gameData.period },
                     ...prev,
                 ]);
         }
-    }, [gameData]);
+    }, [gameData, timeleft]);
 
     return (
         <div className="w-full">

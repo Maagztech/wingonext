@@ -114,7 +114,9 @@ const GamePage: React.FC = () => {
                                 <div
                                     key={time}
                                     onClick={() => {
-                                        if (isSelecting) setIntervals(time);
+                                        if (isSelecting) setIntervals((prev: number) => {
+                                            return time;
+                                        });
                                     }}
                                     className={`px-4 py-2  text-[10px] relative border border-white font-bold text-center cursor-pointer ${time === interval ? "bg-red-500 text-white" : "bg-gray-200"
                                         } rounded-md`}

@@ -3,7 +3,6 @@ import { useRouter } from "next/navigation";
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
 import axios from "axios";
-import moment from "moment";
 import { toast } from "react-toastify";
 
 const GlobalContext = createContext(undefined);
@@ -17,15 +16,41 @@ export const GlobalProvider = ({ children }) => {
   const [balance, setBalance] = useState(0);
   const [user, setUser] = useState(null);
   const [interval, setIntervals] = useState(30);
-  const [timeleft, setTimeleft] = useState({});
+  const [intervalTimeLeft, setIntervalTimeLeft] = useState({});
+  const [timeleft, setTimeleft] = useState(interval);
   const [gameData, setGameData] = useState(null);
   const [socket, setSocket] = useState(null);
   const router = useRouter();
 
+  useEffect(() => {
+    if (intervalTimeLeft[interval]) {
+      setTimeleft(intervalTimeLeft[interval]); // Set the correct initial timeLeft for new interval
+    }
+
+    const timer = setInterval(() => {
+      setTimeleft((prev) => (prev > 0 ? prev - 1 : interval));
+
+      setIntervalTimeLeft((prev) => {
+        const updatedTimeleft = { ...prev };
+        Object.keys(prev).forEach((key) => {
+          const numKey = parseInt(key, 10);
+          updatedTimeleft[numKey] =
+            prev[numKey] > 0 ? prev[numKey] - 1 : numKey;
+        });
+        return updatedTimeleft;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [interval, intervalTimeLeft]);
+
   const fetchBalance = async () => {
-    const response = await axios.get("http://localhost:5000/api/fetchbalance", {
-      headers: { Authorization: accesstoken },
-    });
+    const response = await axios.get(
+      "https://wingobackend-x4wo.onrender.com/api/fetchbalance",
+      {
+        headers: { Authorization: accesstoken },
+      }
+    );
     setBalance(response.data.balance);
   };
 
@@ -39,7 +64,7 @@ export const GlobalProvider = ({ children }) => {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/login",
+        "https://wingobackend-x4wo.onrender.com/api/login",
         {},
         {
           headers: { Authorization: `${token}` },
@@ -68,7 +93,7 @@ export const GlobalProvider = ({ children }) => {
         const refresh_token = await getLocalUser();
         if (refresh_token) {
           const response = await axios.post(
-            "http://localhost:5000/api/refresh_token",
+            "https://wingobackend-x4wo.onrender.com/api/refresh_token",
             { refresh_token }
           );
           setUser(response.data.user);
@@ -95,7 +120,6 @@ export const GlobalProvider = ({ children }) => {
 
     ws.onopen = () => {
       console.log("WebSocket connected!");
-      ws.send(JSON.stringify({ type: "requestTimeleft" })); // Request timeleft for all formats
     };
 
     ws.onmessage = (event) => {
@@ -104,8 +128,20 @@ export const GlobalProvider = ({ children }) => {
       if (data.balance) setBalance(data.balance);
       if (data.type === "betPlaced") toast.success("Bet Placed Successfully");
 
-      if (data.type === "timeleft") {
-        setTimeleft(data.timeleft); // Set initial timeleft received from server
+      if (data.type === "remainingTimes") {
+        const newTimeLeft = {};
+        data.times.forEach(({ interval, timeLeft }) => {
+          newTimeLeft[interval] = timeLeft;
+        });
+
+        setIntervalTimeLeft((prev) => ({
+          ...prev,
+          ...newTimeLeft,
+        }));
+
+        if (newTimeLeft[interval] !== undefined) {
+          setTimeleft(newTimeLeft[interval]);
+        }
       }
 
       if (data.type === "result" && data.interval === interval) {
@@ -119,22 +155,7 @@ export const GlobalProvider = ({ children }) => {
     setSocket(ws);
 
     return () => ws.close();
-  }, [user]);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeleft((prev) => {
-        const updatedTimeleft = {};
-        Object.keys(prev).forEach((format) => {
-          updatedTimeleft[format] =
-            prev[format] > 0 ? prev[format] - 1 : interval;
-        });
-        return updatedTimeleft;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeleft, interval]);
+  }, [user, interval]);
 
   const placeBet = (
     selectedChoice,
@@ -178,6 +199,8 @@ export const GlobalProvider = ({ children }) => {
         setIntervals,
         timeleft,
         setTimeleft,
+        intervalTimeLeft,
+        setIntervalTimeLeft,
         gameData,
         placeBet,
       }}
