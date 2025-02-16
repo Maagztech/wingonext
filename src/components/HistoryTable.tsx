@@ -1,13 +1,20 @@
+"use client";
 import { useGlobalContext } from "@/context/globalContext";
 import axios from "axios";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const HistoryTable = () => {
-    const { gameData, interval, accesstoken }: { gameData: { randomDigit: number; totalUserResult: number; period: number }; interval: string; accesstoken: string } = useGlobalContext();
+    const { gameData, interval, accesstoken }: any = useGlobalContext();
+    useEffect(() => {
+        console.log("gameData", gameData);
+    }, [gameData]);
+    useEffect(() => {
+        console.log("interval", interval);
+    }, [interval]);
     const [history, setHistory] = useState<{ period: number; number: number; result: number }[]>([]);
     const [page, setPage] = useState(1);
-    const [loading, setLoading] = useState(false);
-    const observerRef = useRef<HTMLDivElement | null>(null);
+    const [hasMore, setHasMore] = useState(true);
 
     const options = [
         { number: 0, bigSmall: "Small", colors: ["Red", "Violet"] },
@@ -36,100 +43,91 @@ const HistoryTable = () => {
     };
 
     const fetchHistory = async (pageNum: number) => {
-        if (loading || !accesstoken) return;
-        setLoading(true);
+        if (!accesstoken) return;
         try {
             const response = await axios.get(
-                `https://wingobackend-x4wo.onrender.com/api/fetchhistory?interval=${interval}&page=${pageNum}`,
+                `http://localhost:5000/api/fetchhistory?interval=${interval}&page=${pageNum}`,
                 { headers: { Authorization: accesstoken } }
             );
-            if (pageNum === 1) setHistory(response.data.history);
-            else
-                setHistory((prev) => [...prev, ...response.data.history]);
+            if (response.data.history.length === 0) {
+                setHasMore(false);
+                return;
+            }
+            setHistory((prev) => (pageNum === 1 ? response.data.history : [...prev, ...response.data.history]));
         } catch (error) {
             console.error("Error fetching history:", error);
         }
-        setLoading(false);
     };
 
     useEffect(() => {
         setPage(1);
-        fetchHistory(1); // Fetch history immediately when interval changes
-    }, [interval]);
-
-    useEffect(() => {
-        if (!accesstoken) return;
-        fetchHistory(page); // Fetch history when page changes
-    }, [accesstoken, page]);
+        setHasMore(true);
+        fetchHistory(1);
+    }, [interval, accesstoken]);
 
     useEffect(() => {
         if (gameData) {
-            setHistory((prev) => [
-                { number: gameData.randomDigit, result: gameData.totalUserResult, period: gameData.period },
-                ...prev,
-            ]);
+            if (gameData.interval === interval)
+
+                setHistory((prev) => [
+                    { number: gameData.randomDigit, result: gameData.totalUserResult, period: gameData.period },
+                    ...prev,
+                ]);
         }
     }, [gameData]);
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            (entries) => {
-                if (entries[0].isIntersecting && !loading) {
-                    setPage((prev) => prev + 1);
-                }
-            },
-            { threshold: 1.0 }
-        );
-
-        if (observerRef.current) {
-            observer.observe(observerRef.current);
-        }
-
-        return () => observer.disconnect();
-    }, []);
 
     return (
         <div className="w-full">
             <h2 className="text-xl font-bold mb-4 text-center border px-[2px] py-2 bg-gradient-to-r from-red-500 to-white rounded-lg text-white">
                 Win History
             </h2>
-            <table className="w-full border border-gray-300 text-xs md:text-base rounded-lg">
-                <thead>
-                    <tr className="bg-red-500 text-white">
-                        <th className="px-[2px] py-2 border border-gray-300">Period</th>
-                        <th className="px-[2px] py-2 border border-gray-300">Number</th>
-                        <th className="px-[2px] py-2 border border-gray-300">Big/Small</th>
-                        <th className="px-[2px] py-2 border border-gray-300">Color(s)</th>
-                        <th className="px-[2px] py-2 border border-gray-300">Result</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {history?.map((result: any, index: number) => {
-                        const option = options.find((opt) => opt.number === result.number);
+            <InfiniteScroll
+                dataLength={history.length}
+                next={() => {
+                    setPage((prev) => prev + 1);
+                    fetchHistory(page + 1);
+                }}
+                hasMore={hasMore}
+                loader={<p className="text-center text-gray-500">Loading more...</p>}
+            >
+                <table className="w-full border border-gray-300 text-xs md:text-base rounded-lg">
+                    <thead>
+                        <tr className="bg-red-500 text-white">
+                            <th className="px-[2px] py-2 border border-gray-300">Period</th>
+                            <th className="px-[2px] py-2 border border-gray-300">Number</th>
+                            <th className="px-[2px] py-2 border border-gray-300">Big/Small</th>
+                            <th className="px-[2px] py-2 border border-gray-300">Color(s)</th>
+                            <th className="px-[2px] py-2 border border-gray-300">Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {history?.map((result, index) => {
+                            const option = options.find((opt) => opt.number === result.number);
 
-                        return (
-                            <tr key={index} className="text-center">
-                                <td className="px-[2px] py-2 border border-gray-300">{result.period || "0000"}</td>
-                                <td className="px-[2px] py-2 border border-gray-300">{result.number}</td>
-                                <td className="px-[2px] py-2 border border-gray-300">{option?.bigSmall || "Unknown"}</td>
-                                <td className="px-[2px] py-2 border border-gray-300">
-                                    {option?.colors.map((color, colorIndex) => (
-                                        <span
-                                            key={colorIndex}
-                                            className={`font-bold ${getColorClass(color)} ${colorIndex > 0 ? "ml-2" : ""}`}
-                                        >
-                                            {color}
-                                        </span>
-                                    )) || "Unknown"}
-                                </td>
-                                <td className={`px-[2px] py-2 border border-gray-300 font-bold ${result.result < 0 ? "text-red-500" : "text-green-500"}`}>
-                                    {result.result}
-                                </td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
-            <div ref={observerRef} className="h-10"></div>
+                            return (
+                                <tr key={index} className="text-center">
+                                    <td className="px-[2px] py-2 border border-gray-300">{result.period || "0000"}</td>
+                                    <td className="px-[2px] py-2 border border-gray-300">{result.number}</td>
+                                    <td className="px-[2px] py-2 border border-gray-300">{option?.bigSmall || "Unknown"}</td>
+                                    <td className="px-[2px] py-2 border border-gray-300">
+                                        {option?.colors.map((color, colorIndex) => (
+                                            <span
+                                                key={colorIndex}
+                                                className={`font-bold ${getColorClass(color)} ${colorIndex > 0 ? "ml-2" : ""}`}
+                                            >
+                                                {color}
+                                            </span>
+                                        )) || "Unknown"}
+                                    </td>
+                                    <td className={`px-[2px] py-2 border border-gray-300 font-bold ${result.result < 0 ? "text-red-500" : "text-green-500"}`}>
+                                        {result.result}
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </InfiniteScroll>
         </div>
     );
 };

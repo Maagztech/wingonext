@@ -55,7 +55,7 @@ const BalanceModal = ({ visible, setvisible }: any) => {
                 return;
             }
             await axios.post(
-                "https://wingobackend-x4wo.onrender.com/api/add",
+                "http://localhost:5000/api/add",
                 { image: uploadedImageUrl, transactionID },
                 { headers: { Authorization: accesstoken } }
             );
@@ -71,7 +71,7 @@ const BalanceModal = ({ visible, setvisible }: any) => {
         e.preventDefault();
         if (withdrawAmount && withdrawAmount <= balance) {
             await axios.post(
-                "https://wingobackend-x4wo.onrender.com/api/withdraw",
+                "http://localhost:5000/api/withdraw",
                 { upi, amount: withdrawAmount },
                 { headers: { Authorization: accesstoken } }
             );
@@ -130,7 +130,7 @@ const BalanceModal = ({ visible, setvisible }: any) => {
                     <div className="mt-4">
                         <div className="p-2 border border-white rounded-full flex items-center justify-center gap-2 ">
                             <img src={Money.src} height={18} width={18} alt="Money" />
-                            <p className="text-xl font-bold text-white text-center ">Balance: {balance}</p>
+                            <p className="text-xl font-bold text-white text-center ">Balance: {balance.toFixed(2)}</p>
                         </div>
                         <div className="flex justify-center gap-4 mt-4">
                             <button

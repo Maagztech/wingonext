@@ -17,18 +17,15 @@ export const GlobalProvider = ({ children }) => {
   const [balance, setBalance] = useState(0);
   const [user, setUser] = useState(null);
   const [interval, setIntervals] = useState(30);
-  const [timeleft, setTimeleft] = useState(30);
+  const [timeleft, setTimeleft] = useState({});
   const [gameData, setGameData] = useState(null);
   const [socket, setSocket] = useState(null);
   const router = useRouter();
 
   const fetchBalance = async () => {
-    const response = await axios.get(
-      "https://wingobackend-x4wo.onrender.com/api/fetchbalance",
-      {
-        headers: { Authorization: accesstoken },
-      }
-    );
+    const response = await axios.get("http://localhost:5000/api/fetchbalance", {
+      headers: { Authorization: accesstoken },
+    });
     setBalance(response.data.balance);
   };
 
@@ -42,7 +39,7 @@ export const GlobalProvider = ({ children }) => {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        "https://wingobackend-x4wo.onrender.com/api/login",
+        "http://localhost:5000/api/login",
         {},
         {
           headers: { Authorization: `${token}` },
@@ -71,7 +68,7 @@ export const GlobalProvider = ({ children }) => {
         const refresh_token = await getLocalUser();
         if (refresh_token) {
           const response = await axios.post(
-            "https://wingobackend-x4wo.onrender.com/api/refresh_token",
+            "http://localhost:5000/api/refresh_token",
             { refresh_token }
           );
           setUser(response.data.user);
@@ -91,39 +88,53 @@ export const GlobalProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const now = moment();
-    const secondsElapsed = now.seconds();
-    const secondsUntilNextStart = interval - (secondsElapsed % interval);
-    setTimeleft(secondsUntilNextStart);
-  }, [interval]);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeleft((prev) => (prev === 0 ? interval : prev - 1));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [timeleft, interval]);
-
-  useEffect(() => {
     if (!user) return;
+
     const wsUrl = `wss://wingobackend-x4wo.onrender.com?user=${user._id}`;
     const ws = new WebSocket(wsUrl);
-    ws.onopen = () => console.log("WebSocket connected!");
+
+    ws.onopen = () => {
+      console.log("WebSocket connected!");
+      ws.send(JSON.stringify({ type: "requestTimeleft" })); // Request timeleft for all formats
+    };
+
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log(data);
+
       if (data.balance) setBalance(data.balance);
       if (data.type === "betPlaced") toast.success("Bet Placed Successfully");
+
+      if (data.type === "timeleft") {
+        setTimeleft(data.timeleft); // Set initial timeleft received from server
+      }
+
       if (data.type === "result" && data.interval === interval) {
         setGameData((prev) =>
           JSON.stringify(prev) !== JSON.stringify(data) ? data : prev
         );
       }
     };
+
     ws.onclose = () => console.log("WebSocket disconnected!");
     setSocket(ws);
+
     return () => ws.close();
   }, [user]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeleft((prev) => {
+        const updatedTimeleft = {};
+        Object.keys(prev).forEach((format) => {
+          updatedTimeleft[format] =
+            prev[format] > 0 ? prev[format] - 1 : interval;
+        });
+        return updatedTimeleft;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeleft, interval]);
 
   const placeBet = (
     selectedChoice,
@@ -153,6 +164,7 @@ export const GlobalProvider = ({ children }) => {
     <GlobalContext.Provider
       value={{
         isLoading,
+        setIsLoading,
         isMobile,
         bet,
         setBet,
