@@ -40,7 +40,7 @@ const HistoryTable = () => {
         if (!accesstoken) return;
         try {
             const response = await axios.get(
-                `https://wingobackend-x4wo.onrender.com/api/fetchhistory?interval=${interval}&page=${pageNum}`,
+                `http://localhost:5000/api/fetchhistory?interval=${interval}&page=${pageNum}`,
                 { headers: { Authorization: accesstoken } }
             );
             if (response.data.history.length === 0) {
