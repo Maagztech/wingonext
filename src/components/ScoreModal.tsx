@@ -109,7 +109,7 @@ const ScoreModal = ({ visible, setvisible }: any) => {
             <img src={Success.src} alt="Success" className="mt-[-46px] h-[240px]" />
           )}
           <p className="font-bold text-[20px] leading-[25px] mt-[-16px]">
-            You Won {gameData?.totalUserResult} Rupees!
+            You Won {gameData?.totalUserResult.toFixed(2)} Rupees!
           </p>
         </>
       ) : (

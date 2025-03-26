@@ -40,7 +40,7 @@ const HistoryTable = () => {
         if (!accesstoken) return;
         try {
             const response = await axios.get(
-                `http://localhost:5000/api/fetchhistory?interval=${interval}&page=${pageNum}`,
+                `https://wingobackend-x4wo.onrender.com/api/fetchhistory?interval=${interval}&page=${pageNum}`,
                 { headers: { Authorization: accesstoken } }
             );
             if (response.data.history.length === 0) {
@@ -113,7 +113,7 @@ const HistoryTable = () => {
                                         )) || "Unknown"}
                                     </td>
                                     <td className={`px-[2px] py-2 border border-gray-300 font-bold ${result.result < 0 ? "text-red-500" : "text-green-500"}`}>
-                                        {result.result}
+                                        {result.result.toFixed(2)}
                                     </td>
                                 </tr>
                             );

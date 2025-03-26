@@ -202,8 +202,8 @@ const GamePage: React.FC = () => {
                                         <Image
                                             src={image}
                                             alt={`Digit ${index}`}
-                                            width={70}
-                                            height={70}
+                                            width={90}
+                                            height={90}
                                             onClick={() => handleDigitClick(index)}
                                             className={`cursor-pointer hover:scale-105 active:scale-95 transition-transform duration-150 ease-in-out rounded-lg ${!isSelecting ? "cursor-not-allowed opacity-50" : ""
                                                 }`}
