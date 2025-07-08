@@ -13,7 +13,7 @@ export default function Home() {
     <main className="w-full text-sm overflow-hidden px-[20px] sm:px-[30px] md:px-[100px]">
       {isLoading ? <GlobalLoader /> : <></>}
       <div className="flex items-center justify-center gap-4 mt-3">
-        <div className="relative h-[42px] w-[311px] mt-[28px] mb-[35px] flex justify-center">
+        <div className="relative h-[42px] w-[400px] mt-[28px] mb-[35px] flex justify-center">
           <div
             style={{ zIndex: 3 }}
             className="opacity-0 absolute top-0 right-0 cursor-pointer hover:scale-105 active:scale-95 transition-transform duration-150 ease-in-out "
@@ -21,6 +21,7 @@ export default function Home() {
             <GoogleLogin
               width="400px"
               onSuccess={(credentialResponse) => {
+                console.log(credentialResponse.credential)
                 signInUser(credentialResponse.credential);
               }}
               onError={() => {
@@ -38,7 +39,7 @@ export default function Home() {
             Login
           </button>
         </div>
-        <div className="relative h-[42px] w-[311px] mt-[28px] mb-[35px] flex justify-center">
+        <div className="relative h-[42px] w-[400px] mt-[28px] mb-[35px] flex justify-center">
           <div
             style={{ zIndex: 3 }}
             className="opacity-0 absolute top-0 right-0 cursor-pointer hover:scale-105 active:scale-95 transition-transform duration-150 ease-in-out "

@@ -46,7 +46,7 @@ export const GlobalProvider = ({ children }) => {
 
   const fetchBalance = async () => {
     const response = await axios.get(
-      "https://wingobackend-x4wo.onrender.com/api/fetchbalance",
+      "http://localhost:5000/api/fetchbalance",
       {
         headers: { Authorization: accesstoken },
       }
@@ -64,7 +64,7 @@ export const GlobalProvider = ({ children }) => {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        "https://wingobackend-x4wo.onrender.com/api/login",
+        "http://dhaman.ap-south-1.elasticbeanstalk.com/api/login",
         {},
         {
           headers: { Authorization: `${token}` },
@@ -76,7 +76,7 @@ export const GlobalProvider = ({ children }) => {
       router.replace("/spin");
       localStorage.setItem("refresh_token", user.refresh_token);
     } catch (error) {
-      console.log(error);
+      console.log("err->", error);
     }
     setIsLoading(false);
   };
@@ -93,7 +93,7 @@ export const GlobalProvider = ({ children }) => {
         const refresh_token = await getLocalUser();
         if (refresh_token) {
           const response = await axios.post(
-            "https://wingobackend-x4wo.onrender.com/api/refresh_token",
+            "http://localhost:5000/api/refresh_token",
             { refresh_token }
           );
           setUser(response.data.user);
@@ -115,7 +115,7 @@ export const GlobalProvider = ({ children }) => {
   useEffect(() => {
     if (!user) return;
 
-    const wsUrl = `wss://wingobackend-x4wo.onrender.com?user=${user._id}`;
+    const wsUrl = `wss://localhost:5000?user=${user._id}`;
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {

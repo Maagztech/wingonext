@@ -55,7 +55,7 @@ const BalanceModal = ({ visible, setvisible }: any) => {
                 return;
             }
             await axios.post(
-                "https://wingobackend-x4wo.onrender.com/api/add",
+                "http://localhost:5000/api/add",
                 { image: uploadedImageUrl, transactionID },
                 { headers: { Authorization: accesstoken } }
             );
@@ -71,7 +71,7 @@ const BalanceModal = ({ visible, setvisible }: any) => {
         e.preventDefault();
         if (withdrawAmount && withdrawAmount <= balance) {
             await axios.post(
-                "https://wingobackend-x4wo.onrender.com/api/withdraw",
+                "http://localhost:5000/api/withdraw",
                 { upi, amount: withdrawAmount },
                 { headers: { Authorization: accesstoken } }
             );
